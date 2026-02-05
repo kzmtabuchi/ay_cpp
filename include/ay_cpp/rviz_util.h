@@ -11,12 +11,12 @@
 //-------------------------------------------------------------------------------------------
 #include <ay_cpp/geom_util.h>
 //-------------------------------------------------------------------------------------------
-#include <ros/ros.h>
-#include <std_msgs/ColorRGBA.h>
-#include <geometry_msgs/Point.h>
-#include <geometry_msgs/Vector3.h>
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/color_rgba.hpp>
+#include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
+#include <visualization_msgs/msg/marker.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 //-------------------------------------------------------------------------------------------
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -32,36 +32,39 @@ namespace trick
 // Utility for RViz.
 class TSimpleVisualizer
 {
+private:
+  rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr viz_pub_;
+
 protected:
-  ros::Publisher viz_pub_;
+  rclcpp::Node::SharedPtr node_ptr_;
   int curr_id_;
   std::set<int> added_ids_;
   std::string viz_frame_;
   std::string viz_ns_;
-  ros::Duration viz_dt_;
+  rclcpp::Duration viz_dt_;
 
-  virtual void marker_operation(const visualization_msgs::Marker &marker)
+  virtual void marker_operation(const visualization_msgs::msg::Marker &marker)
     {
-      viz_pub_.publish(marker);
+      viz_pub_->publish(marker);
     }
 
 public:
-  typedef std_msgs::ColorRGBA ColorRGBA;
-  typedef geometry_msgs::Vector3 Vector3;
-  typedef geometry_msgs::Pose Pose;
-  typedef geometry_msgs::Point Point;
-  typedef geometry_msgs::Quaternion Quaternion;
-  typedef visualization_msgs::Marker Marker;
-  typedef visualization_msgs::MarkerArray MarkerArray;
+  typedef std_msgs::msg::ColorRGBA ColorRGBA;
+  typedef geometry_msgs::msg::Vector3 Vector3;
+  typedef geometry_msgs::msg::Pose Pose;
+  typedef geometry_msgs::msg::Point Point;
+  typedef geometry_msgs::msg::Quaternion Quaternion;
+  typedef visualization_msgs::msg::Marker Marker;
+  typedef visualization_msgs::msg::MarkerArray MarkerArray;
 
-  TSimpleVisualizer() {}
+  TSimpleVisualizer() : viz_dt_(0, 0) {}
 
-  virtual void Setup(const ros::Duration &viz_dt=ros::Duration(), const std::string &name_space="visualizer",
+  virtual void Setup(rclcpp::Node::SharedPtr node,const rclcpp::Duration &viz_dt=rclcpp::Duration(0,0), const std::string &name_space="visualizer",
              const std::string &frame="", int queue_size=1, const std::string &topic="visualization_marker")
     {
-      ros::NodeHandle node;
+      node_ptr_ = node;
       if(topic!="")
-        viz_pub_= node.advertise<Marker>(topic, queue_size);
+        viz_pub_ = node->create_publisher<Marker>(topic, queue_size);
       curr_id_= 0;
       added_ids_.clear();
       viz_frame_= frame==""?"base":frame;
@@ -71,18 +74,19 @@ public:
 
   ~TSimpleVisualizer()
     {
-      if(viz_dt_!=ros::Duration())
+      if(viz_dt_!=rclcpp::Duration(0,0))
         DeleteAllMarkers();
-      Reset();
-      viz_pub_.shutdown();
+      this->Reset();
+      if (viz_pub_)
+        viz_pub_.reset();
     }
 
   const std::string& Frame() const {return viz_frame_;}
   const std::string& Namespace() const {return viz_ns_;}
-  const ros::Duration& Dt() const {return viz_dt_;}
+  const rclcpp::Duration& Dt() const {return viz_dt_;}
   void SetFrame(const std::string &v)  {viz_frame_= v;}
   void SetNamespace(const std::string &v)  {viz_ns_= v;}
-  void SetDt(const ros::Duration &v)  {viz_dt_= v;}
+  void SetDt(const rclcpp::Duration &v)  {viz_dt_= v;}
 
   virtual void Reset()
     {
@@ -135,7 +139,7 @@ public:
     {
       Marker marker;
       marker.header.frame_id= viz_frame_;
-      marker.header.stamp= ros::Time::now();
+      marker.header.stamp= node_ptr_->now();
       marker.ns= viz_ns_;
       marker.action= Marker::ADD;
       marker.lifetime= viz_dt_;
@@ -390,6 +394,9 @@ public:
 // Utility for RViz (MarkerArray version of TSimpleVisualizer).
 class TSimpleVisualizerArray : public TSimpleVisualizer
 {
+private:
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr viz_pub_;
+
 protected:
   MarkerArray marker_array_;
 
@@ -402,13 +409,12 @@ public:
 
   TSimpleVisualizerArray() {}
 
-  /*override*/void Setup(const ros::Duration &viz_dt=ros::Duration(), const std::string &name_space="visualizer",
+  /*override*/void Setup(rclcpp::Node::SharedPtr node, const rclcpp::Duration &viz_dt=rclcpp::Duration(0,0), const std::string &name_space="visualizer",
              const std::string &frame="", int queue_size=1, const std::string &topic="visualization_marker_array")
     {
-      TSimpleVisualizer::Setup(viz_dt, name_space, frame, queue_size, /*topic=*/"");
-      ros::NodeHandle node;
+      TSimpleVisualizer::Setup(node, viz_dt, name_space, frame, queue_size, /*topic=*/"");
       if(topic!="")
-        viz_pub_= node.advertise<MarkerArray>(topic, queue_size);
+        viz_pub_ = node->create_publisher<MarkerArray>(topic, queue_size);
       Reset();
     }
 
@@ -420,7 +426,7 @@ public:
 
   void Publish()
     {
-      viz_pub_.publish(marker_array_);
+      viz_pub_->publish(marker_array_);
       Reset();
     }
 

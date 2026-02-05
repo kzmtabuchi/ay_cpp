@@ -1,3 +1,13 @@
 {
-    "ros.distro": "humble"
+    "ros.distro": "humble",
+    "python.analysis.extraPaths": [
+        "/opt/ros/humble/local/lib/python3.10/dist-packages", // ROS 2 標準ライブラリのパス
+        "${workspaceFolder}/../../install/ros2_template_cpp/lib/python3.10/site-packages",  // 使用するほかパッケージのパス
+        "${workspaceFolder}/script",  // ワークスペース内のスクリプトディレクトリ
+    ],
+    "python.autoComplete.extraPaths": [
+        "/opt/ros/humble/local/lib/python3.10/dist-packages", // ROS 2 標準ライブラリのパス
+        "${workspaceFolder}/../../install/ros2_template_cpp/lib/python3.10/site-packages",  // 使用するほかパッケージのパス
+        "${workspaceFolder}/script",  // ワークスペース内のスクリプトディレクトリ
+    ],
 }
