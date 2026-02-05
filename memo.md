@@ -49,6 +49,22 @@
    colcon test --packages-select ay_cpp
    ```
 
+詳細な変更点はコミット f89f56af55fcb54f0be45c46a23ef9ab3d25251f を確認のこと
+
 ### rviz_util のテスト
 
-まだ実施していない。テスト用にノードとか起こす必要あり
+RViz を起動する必要があるので，launchテストにする必要がある。  
+このテストは unittest で起動する。py_test で実行する方法はわからず，現状は諦め状態
+
+1. launchファイル test_rviz_util.launch.py を追加  
+   rvizとテストを起動し，C++のテストが終わるのを待つ設定
+1. RViz設定ファイル test.rviz を追加  
+   あらかじめトピック受信用のオブジェクトを登録している
+1. rviz_util.h を ROS2 向けに修正
+1. テストコード test_rviz_util.cpp の追加  
+   ノードを起こして rviz_util の処理を呼ぶ。正しくマーカが登録されたかどうかを調べる処理は入れていない
+1. Pythonにパスを通すために setting.json を修正
+1. package.xml に launch テスト用の依存パッケージを登録
+1. CMakeLists.txt に launch テストの登録処理を追加
+
+詳細な変更点はコミット 1c30dd9a14b896327dbfae6eb49e1ea0e1e6ec1d を確認のこと
