@@ -1,16 +1,24 @@
 <?xml version="1.0"?>
-<package format="2">
-  <name>ay_cpp</name>
-  <version>0.0.0</version>
-  <description>The ay_cpp package</description>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>ay_cpp</name>  <!-- コピペ -->
+  <version>0.0.0</version>  <!-- コピペ -->
+  <description>The ay_cpp package</description>  <!-- コピペ -->
+  <author email="dummy@dummy.com">FingerVision Inc.</author>  <!-- 社名にする。email属性は会社の代表連絡先がないので記載していない(属性の記載は必須) -->
+  <maintainer email="dummy@dummy.com">FingerVision Inc.</maintainer>  <!-- 社名にする。email属性は会社の代表連絡先がないので記載していない(属性の記載は必須) -->
+  <license>GPL-3.0-only</license>  <!--<license>Proprietary</license>-->  <!-- ←を設定したいが，ライセンスの関係でできていない -->
 
-  <author email="info@akihikoy.net">Akihiko Yamaguchi</author>
-  <maintainer email="info@akihikoy.net">Akihiko Yamaguchi</maintainer>
-  <license>Described in LICENSE</license>
-  <url>http://akihikoy.net/p/fv</url>
-  <buildtool_depend>catkin</buildtool_depend>
-  <depend>roscpp</depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>  <!-- <buildtool_depend>catkin</buildtool_depend> に対応 -->
+
+  <build_depend>rclcpp</build_depend>  <!-- <depend>roscpp</depend> に対応 -->
+  <exec_depend>rclcpp</exec_depend>  <!-- <depend>roscpp</depend> に対応 -->
+
+  <test_depend>ament_lint_auto</test_depend>  <!-- 汎用テスト設定 -->
+  <test_depend>ament_lint_common</test_depend>  <!-- 汎用テスト設定 -->
+  <test_depend>ament_cmake_gtest</test_depend>  <!-- 汎用テスト設定 -->
+  <test_depend>rclcpp</test_depend>  <!-- 汎用テスト設定, <depend>roscpp</depend> に対応 -->
 
   <export>
+    <build_type>ament_cmake</build_type>  <!-- 汎用出力設定 -->
   </export>
 </package>
