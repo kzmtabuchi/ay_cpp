@@ -31,7 +31,7 @@ USER root
 # 必要なパッケージ（sudo等）のインストール
 RUN apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*
 
-# 1. ユーザーの作成とホームディレクトリの固定
+# ユーザーの作成とホームディレクトリの固定
 RUN groupadd --gid $USER_GID $USER_NAME || true \
     && useradd --uid $USER_UID --gid $USER_GID -m -s /bin/bash $USER_NAME || true \
     && echo "$USER_NAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -40,20 +40,20 @@ RUN groupadd --gid $USER_GID $USER_NAME || true \
 ENV HOME=/home/${USER_NAME}
 ENV ROS_DISTRO=humble
 
-# 2. ユーザーを切り替えて作業開始
+# ユーザーを切り替えて作業開始
 USER ${USER_NAME}
 WORKDIR ${HOME}
 
-# 3. 必要なフォルダを一括作成
+# 必要なフォルダを一括作成
 RUN mkdir -p \
     ${HOME}/workspace/general_ws \
     ${HOME}/workspace/ros_ws \
     ${HOME}/workspace/external_general_ws \
     ${HOME}/workspace/external_ros_ws
 
-# 4. .bashrc に source 設定を追記
+# .bashrc に source 設定を追記
 # (local_setup.bash はファイルが存在しないとエラーを出す場合があるため、
-#  実運用では [ -f ... ] でチェックを入れるのが一般的です)
+#  [ -f ... ] でチェックを入れる)
 RUN echo "source /opt/ros/\$ROS_DISTRO/setup.bash" >> ${HOME}/bashrc_append \
     && echo "if [ -f ${HOME}/workspace/external_ros_ws/local_setup.bash ]; then source ${HOME}/workspace/external_ros_ws/local_setup.bash; fi" >> ${HOME}/bashrc_append \
     && echo "if [ -f ${HOME}/workspace/ros_ws/local_setup.bash ]; then source ${HOME}/workspace/ros_ws/local_setup.bash; fi" >> ${HOME}/bashrc_append \
@@ -138,7 +138,7 @@ RViz を起動する必要があるので，launchテストにする必要があ
 1. RViz設定ファイル test.rviz を追加  
    あらかじめトピック受信用のオブジェクトを登録している
 1. rviz_util.h を ROS2 向けに修正
-1. テストコード test_rviz_util.cpp の追加  
+1. test_rviz_util.cpp を追加して簡単なテストを作成 
    ノードを起こして rviz_util の処理を呼ぶ。正しくマーカが登録されたかどうかを調べる処理は入れていない
 1. Pythonにパスを通すために setting.json を修正
 1. package.xml に launch テスト用の依存パッケージを登録
@@ -155,6 +155,11 @@ RViz を起動する必要があるので，launchテストにする必要があ
 launch テストを単体で実行したいときは launch_test も使える
 ```bash
 launch_test install/ay_cpp/share/ay_cpp/test/launch/test_rviz_util.launch.py
+```
+
+`colcon test` でリンタを動かさない設定
+```bash
+colcon test --packages-select ay_cpp  --event-handlers console_direct+ --ctest-args -E "(copyright|lint|flake8|cppcheck|uncrustify)"
 ```
 
 CIなどでRVizを起動したくない場合，仮想ディスプレイを使う

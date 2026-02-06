@@ -64,7 +64,10 @@ public:
     {
       node_ptr_ = node;
       if(topic!="")
-        viz_pub_ = node->create_publisher<Marker>(topic, queue_size);
+      {
+        auto qos = rclcpp::QoS(rclcpp::KeepLast(queue_size)).reliable().transient_local();
+        viz_pub_ = node->create_publisher<Marker>(topic, qos);
+      }
       curr_id_= 0;
       added_ids_.clear();
       viz_frame_= frame==""?"base":frame;
@@ -414,7 +417,10 @@ public:
     {
       TSimpleVisualizer::Setup(node, viz_dt, name_space, frame, queue_size, /*topic=*/"");
       if(topic!="")
-        viz_pub_ = node->create_publisher<MarkerArray>(topic, queue_size);
+      {
+        auto qos = rclcpp::QoS(rclcpp::KeepLast(queue_size)).reliable().transient_local();
+        viz_pub_ = node->create_publisher<MarkerArray>(topic, qos);
+      }
       Reset();
     }
 
