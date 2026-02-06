@@ -177,3 +177,5 @@ sudo apt update
 sudo apt install xvfb
 xvfb-run -a colcon test --packages-select ay_cpp  --event-handlers console_direct+ --ctest-args -R test_rviz_util.launch.py
 ```
+
+pytest について： 単体テストを pytest で記載することはできるが，launch テストは unittest 限定っぽい

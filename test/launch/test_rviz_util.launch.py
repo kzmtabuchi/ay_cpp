@@ -53,5 +53,6 @@ class TestGtestBasic(unittest.TestCase):
 
 @launch_testing.post_shutdown_test()
 class TestShutdown(unittest.TestCase):
+    # テスト終了後に残っているプロセスを終了させる
     def test_exit_codes(self, proc_info):
         launch_testing.asserts.assertExitCodes(proc_info)
