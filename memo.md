@@ -148,7 +148,16 @@ RViz を起動する必要があるので，launchテストにする必要があ
    colcon test --packages-select ay_cpp  --event-handlers console_direct+ --ctest-args -R test_rviz_util.launch.py
    ```
 
-詳細な変更点はコミット 1c30dd9a14b896327dbfae6eb49e1ea0e1e6ec1d を確認のこと
+ここまでの詳細な変更点はコミット 1c30dd9a14b896327dbfae6eb49e1ea0e1e6ec1d を確認のこと
+
+9. テストに出力されたトピックを捕まえて確認する処理を追加
+10. RVizの表示と両立できなくなった。またテストも通らなくなった  
+    原因は QoS にあるらしいので修正  
+    RVizのQoS設定は Reliable & Transient Local らしい
+11. 修正してテストが通ることを確認
+
+この変更の詳細はコミット 533da7d8f055ff4a7551483e31c45df376285dcb を確認のこと
+
 
 ## Notes
 
